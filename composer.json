@@ -1,0 +1,35 @@
+{
+    "name": "tacman/ai-batch-bundle",
+    "description": "Async batch AI processing for Symfony. Implements OpenAI Batch API and Anthropic Message Batches with Symfony Scheduler polling. Proposed for symfony/ai.",
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "keywords": ["symfony", "ai", "batch", "openai", "anthropic", "async"],
+    "authors": [
+        {"name": "Survos", "homepage": "https://survos.com"}
+    ],
+    "autoload": {
+        "psr-4": {
+            "Tacman\\AiBatch\\": "src/"
+        }
+    },
+    "require": {
+        "php": ">=8.2",
+        "symfony/framework-bundle": "^7.3|^8.0",
+        "symfony/http-client": "^7.3|^8.0",
+        "symfony/scheduler": "^7.3|^8.0"
+    },
+    "suggest": {
+        "doctrine/orm": "For persisting AiBatch entities",
+        "symfony/messenger": "For async result processing",
+        "symfony/ai-agent": "For building batch requests from Agent/MessageBag patterns"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^11.0|^12.0|^13.0",
+        "symfony/ai-agent": "*"
+    },
+    "extra": {
+        "symfony": {
+            "require": "^7.3|^8.0"
+        }
+    }
+}
