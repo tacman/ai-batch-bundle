@@ -6,6 +6,7 @@ namespace Tacman\AiBatch\Service;
 use Tacman\AiBatch\Contract\BatchCapablePlatformInterface;
 use Tacman\AiBatch\Model\BatchJob;
 use Tacman\AiBatch\Model\BatchRequest;
+use Tacman\AiBatch\Model\BatchResult;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**

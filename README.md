@@ -18,9 +18,6 @@ Async batch AI processing for Symfony. Implements the **OpenAI Batch API** and
 | Results | Immediate | ~10 min (up to 24h) |
 | Best for | Interactive, ≤100 items | **Enrichment pipelines, ≥1000 items** |
 
-Real-world numbers from this bundle's development:
-- **270,000 Fortepan photos**: $108 sync → **$54 batch**
-- **2,000,000 DC images** (via IIIF, no S3 needed): $1,600 sync → **$800 batch**
 
 ---
 
@@ -37,10 +34,10 @@ cp .env.example .env.local
 # Add your OPENAI_API_KEY to .env.local
 
 # Synchronous — 2 products, results immediately
-bin/console app:advertising --limit=2
+bin/console app:ads --limit=2
 
 # Batch — all 194 products, 50% cheaper
-bin/console app:advertising --batch
+bin/console app:ads --batch
 
 #  ✅ 194 products submitted to OpenAI Batch API (50% cost discount applies!)
 #  ┌──────────────────┬────────────────────────────┐
