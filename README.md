@@ -30,7 +30,6 @@ using product images (vision) + descriptions.
 ```bash
 cd demo
 composer install
-cp .env.example .env.local
 # Add your OPENAI_API_KEY to .env.local
 
 # Synchronous — 2 products, results immediately
@@ -96,11 +95,6 @@ ANTHROPIC_API_KEY=sk-ant-...  # optional
 Run the schema update:
 ```bash
 bin/console doctrine:schema:update --force
-```
-
-Start the scheduler (polls in-progress batches every 2 minutes):
-```bash
-bin/console messenger:consume scheduler_default
 ```
 
 ---
@@ -182,19 +176,6 @@ Implementations:
 - ✅ `AnthropicBatchClient` — Anthropic `/v1/messages/batches`
 - ❌ Mistral — no batch API yet
 - 📋 Google Vertex AI batch prediction — planned
-
----
-
-## PDF and multi-page documents
-
-Batch is particularly powerful for PDFs where each page needs separate AI analysis.
-This bundle models the concept but leaves PDF extraction (poppler/pdfium) to the caller:
-
-```
-PDF → extract pages → BatchRequest per page (customId: "doc_{id}_page_{n}")
-    → batch submit → results keyed by page
-    → reassemble into Item + Pages in zm
-```
 
 ---
 
