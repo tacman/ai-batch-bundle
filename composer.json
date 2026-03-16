@@ -13,10 +13,10 @@
         }
     },
     "require": {
-        "php": ">=8.2",
-        "symfony/framework-bundle": "^7.3|^8.0",
-        "symfony/http-client": "^7.3|^8.0",
-        "symfony/scheduler": "^7.3|^8.0"
+        "php": "^8.4",
+        "symfony/framework-bundle": "^7.4|^8.0",
+        "symfony/http-client": "^7.4|^8.0",
+        "symfony/scheduler": "^7.4|^8.0"
     },
     "suggest": {
         "doctrine/orm": "For persisting AiBatch entities",
@@ -24,12 +24,13 @@
         "symfony/ai-agent": "For building batch requests from Agent/MessageBag patterns"
     },
     "require-dev": {
+        "roave/security-advisories": "dev-latest",
         "phpunit/phpunit": "^11.0|^12.0|^13.0",
         "symfony/ai-agent": "*"
     },
     "extra": {
         "symfony": {
-            "require": "^7.3|^8.0"
+            "require": "^7.4|^8.0"
         }
     }
 }

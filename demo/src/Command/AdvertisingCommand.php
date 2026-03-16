@@ -4,29 +4,35 @@ declare(strict_types=1);
 namespace App\Command;
 
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\AI\Platform\PlatformInterface;
+use Symfony\AI\Platform\Message\MessageBag;
+use Symfony\AI\Platform\Message\SystemMessage;
+use Symfony\AI\Platform\Message\UserMessage;
+use Symfony\AI\Platform\Message\Content\ImageUrl;
+use Symfony\AI\Platform\Message\Content\Text;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Attribute\Option;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Tacman\AiBatch\Entity\AiBatch;
 use Tacman\AiBatch\Model\BatchRequest;
 use Tacman\AiBatch\Service\AiBatchBuilder;
-use Tacman\AiBatch\Service\OpenAiBatchClient;
 
 /**
  * Demo command: generate programmer-targeted ad copy for dummyjson.com products.
  *
- * Synchronous (default — uses symfony/ai Agent directly):
+ * Data: Products loaded from data/products.json (originally from dummyjson.com)
+ *
+ * Synchronous (default — uses symfony/ai PlatformInterface):
  *   bin/console app:advertising --limit=2
  *
  * Batch mode (50% cheaper, async — submits to OpenAI Batch API):
  *   bin/console app:advertising --batch
  *   bin/console app:advertising --batch --limit=10
  */
-#[AsCommand('app:advertising', 'Generate programmer-targeted ad copy using OpenAI (sync or batch)')]
+#[AsCommand('app:ads', 'Generate programmer-targeted ad copy using OpenAI (sync or batch)')]
 final class AdvertisingCommand
 {
-    private const PRODUCTS_URL = 'https://dummyjson.com/products';
     private const SYSTEM_PROMPT = <<<PROMPT
 You are a copywriter who specializes in marketing products to software developers and programmers.
 Write punchy, witty advertising copy that speaks to the developer mindset:
@@ -35,29 +41,30 @@ Keep it under 3 sentences. Be creative and funny.
 PROMPT;
 
     public function __construct(
-        private readonly HttpClientInterface    $http,
         private readonly EntityManagerInterface $em,
+        private readonly PlatformInterface       $platform,
         private readonly AiBatchBuilder         $batchBuilder,
-        private readonly OpenAiBatchClient      $batchClient,
     ) {}
 
     public function __invoke(
         SymfonyStyle $io,
         #[Option('Number of products to process (0 = all 194)')] int $limit = 0,
-        #[Option('Use OpenAI Batch API (50% cheaper, results in ~10 min)')] bool $batch = false,
+        #[Option('Use OpenAI Batch API (50% cheaper, results in ~10 min)')] ?bool $batch = null,
         #[Option('Model to use')] string $model = 'gpt-4o-mini',
     ): int {
         $io->title('🛍️  Programmer Ad Copy Generator');
 
-        // Fetch products from dummyjson
-        $perPage  = min($limit > 0 ? $limit : 194, 194);
-        $response = $this->http->request('GET', self::PRODUCTS_URL, [
-            'query' => ['limit' => $perPage, 'select' => 'id,title,description,category,price,thumbnail'],
-        ]);
-        $products = $response->toArray()['products'];
-        $total    = count($products);
+        // Load products from local JSON (originally from dummyjson.com)
+        $jsonPath = __DIR__ . '/../../data/products.json';
+        $data = json_decode(file_get_contents($jsonPath), true);
+        $products = $data['products'];
 
-        $io->text(sprintf('Fetched %d products from dummyjson.com', $total));
+        if ($limit > 0) {
+            $products = array_slice($products, 0, $limit);
+        }
+
+        $total = count($products);
+        $io->text(sprintf('Loaded %d products from data/products.json (source: dummyjson.com)', $total));
 
         if ($batch) {
             return $this->runBatch($io, $products, $model);
@@ -77,29 +84,24 @@ PROMPT;
         foreach ($products as $product) {
             $userPrompt = $this->userPrompt($product);
 
-            $response = $this->http->request('POST', 'https://api.openai.com/v1/chat/completions', [
-                'auth_bearer' => $_ENV['OPENAI_API_KEY'],
-                'json' => [
-                    'model'    => $model,
-                    'messages' => [
-                        ['role' => 'system', 'content' => self::SYSTEM_PROMPT],
-                        ['role' => 'user',   'content' => [
-                            ['type' => 'text',      'text' => $userPrompt],
-                            ['type' => 'image_url', 'image_url' => ['url' => $product['thumbnail'], 'detail' => 'low']],
-                        ]],
-                    ],
-                    'max_tokens' => 150,
-                ],
-            ]);
+            $response = $this->platform->invoke($model,
+                new MessageBag(
+                    new SystemMessage(self::SYSTEM_PROMPT),
+                    new UserMessage(
+                        new Text($userPrompt),
+                        new ImageUrl($product['thumbnail'], 'low'),
+                    ),
+                )
+            );
 
-            $copy = $response->toArray()['choices'][0]['message']['content'] ?? '(no response)';
+            $copy = $response->asText();
 
             $io->writeln(sprintf('<info>%s</info> ($%.2f)', $product['title'], $product['price']));
             $io->writeln("  <comment>{$copy}</comment>");
             $io->newLine();
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     // ── Batch mode ────────────────────────────────────────────────────────────
@@ -156,7 +158,7 @@ PROMPT;
             sprintf('  bin/console app:fetch-batch %d', $aiBatch->id),
         ]);
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function userPrompt(array $product): string

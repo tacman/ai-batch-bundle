@@ -25,10 +25,14 @@ class TacmanAiBatchBundle extends AbstractBundle
         $services = $container->services()->defaults()->autowire()->autoconfigure();
 
         $services->set(\Tacman\AiBatch\Service\OpenAiBatchClient::class)
-            ->arg('$apiKey', '%env(OPENAI_API_KEY)%');
+            ->arg('$apiKey', '%env(OPENAI_API_KEY)%')
+            ->tag('tacman.ai_batch.client');
 
         $services->set(\Tacman\AiBatch\Service\AnthropicBatchClient::class)
-            ->arg('$apiKey', '%env(default::ANTHROPIC_API_KEY)%');
+            ->arg('$apiKey', '%env(default::ANTHROPIC_API_KEY)%')
+            ->tag('tacman.ai_batch.client');
+
+        $services->alias(\Tacman\AiBatch\Contract\BatchCapablePlatformInterface::class, \Tacman\AiBatch\Service\OpenAiBatchClient::class);
 
         $services->set(\Tacman\AiBatch\Service\AiBatchBuilder::class);
         $services->set(\Tacman\AiBatch\Scheduler\PollBatchesTask::class);

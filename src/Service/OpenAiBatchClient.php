@@ -6,7 +6,6 @@ namespace Tacman\AiBatch\Service;
 use Tacman\AiBatch\Contract\BatchCapablePlatformInterface;
 use Tacman\AiBatch\Model\BatchJob;
 use Tacman\AiBatch\Model\BatchRequest;
-use Tacman\AiBatch\Model\BatchResult;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
@@ -90,15 +89,18 @@ final class OpenAiBatchClient implements BatchCapablePlatformInterface
 
     private function uploadFile(string $content, string $purpose): string
     {
+        $tmpFile = tempnam(sys_get_temp_dir(), 'aibatch_upload_') . '.jsonl';
+        file_put_contents($tmpFile, $content);
+
         $response = $this->http->request('POST', self::BASE . '/files', [
             'auth_bearer' => $this->apiKey,
-            'headers'     => ['Content-Type' => 'multipart/form-data'],
             'body'        => [
                 'purpose' => $purpose,
-                'file'    => $content,
-                'filename'=> 'batch_input.jsonl',
+                'file'    => fopen($tmpFile, 'r'),
             ],
         ]);
+
+        @unlink($tmpFile);
         return $response->toArray()['id'];
     }
 
