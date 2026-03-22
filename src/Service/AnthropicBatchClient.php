@@ -9,6 +9,8 @@ use Tacman\AiBatch\Model\BatchRequest;
 use Tacman\AiBatch\Model\BatchResult;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use function trigger_deprecation;
+
 /**
  * Anthropic Message Batches API client.
  *
@@ -26,7 +28,9 @@ final class AnthropicBatchClient implements BatchCapablePlatformInterface
     public function __construct(
         private readonly HttpClientInterface $http,
         private readonly string              $apiKey,
-    ) {}
+    ) {
+        trigger_deprecation('tacman/ai-batch-bundle', '0.2', 'The "%s" service is deprecated and will be removed in favor of Symfony\AI batch clients.', self::class);
+    }
 
     public function supportsBatch(): bool { return true; }
 

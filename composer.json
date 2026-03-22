@@ -14,8 +14,10 @@
     },
     "require": {
         "php": "^8.4",
+        "symfony/ai": "dev-feature/batch-processing as 1.0",
         "symfony/framework-bundle": "^7.4|^8.0",
         "symfony/http-client": "^7.4|^8.0",
+        "symfony/messenger": "^7.4|^8.0",
         "symfony/scheduler": "^7.4|^8.0"
     },
     "suggest": {

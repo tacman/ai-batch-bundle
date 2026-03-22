@@ -9,6 +9,8 @@ use Tacman\AiBatch\Model\BatchRequest;
 use Tacman\AiBatch\Model\BatchResult;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+use function trigger_deprecation;
+
 /**
  * OpenAI Batch API client.
  *
@@ -26,7 +28,9 @@ final class OpenAiBatchClient implements BatchCapablePlatformInterface
     public function __construct(
         private readonly HttpClientInterface $http,
         private readonly string              $apiKey,
-    ) {}
+    ) {
+        trigger_deprecation('tacman/ai-batch-bundle', '0.2', 'The "%s" service is deprecated, use "%s" instead.', self::class, SymfonyBatchPlatformClient::class);
+    }
 
     public function supportsBatch(): bool { return true; }
 

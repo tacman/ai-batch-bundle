@@ -7,6 +7,8 @@ use Tacman\AiBatch\Contract\BatchCapablePlatformInterface;
 use Tacman\AiBatch\Entity\AiBatch;
 use Tacman\AiBatch\Model\BatchRequest;
 
+use function trigger_deprecation;
+
 /**
  * Builds and submits a batch from an iterable of records.
  *
@@ -32,7 +34,9 @@ final class AiBatchBuilder
 
     public function __construct(
         private readonly BatchCapablePlatformInterface $client,
-    ) {}
+    ) {
+        trigger_deprecation('tacman/ai-batch-bundle', '0.2', 'The "%s" service is deprecated, prefer dispatching task messages through the new task dispatcher services.', self::class);
+    }
 
     /**
      * Build an AiBatch entity from an iterable of records.

@@ -24,18 +24,24 @@ class TacmanAiBatchBundle extends AbstractBundle
     {
         $services = $container->services()->defaults()->autowire()->autoconfigure();
 
-        $services->set(\Tacman\AiBatch\Service\OpenAiBatchClient::class)
+        $services->set(\Tacman\AiBatch\Service\SymfonyBatchPlatformClient::class)
             ->arg('$apiKey', '%env(OPENAI_API_KEY)%')
             ->tag('tacman.ai_batch.client');
 
+        $services->set(\Tacman\AiBatch\Service\OpenAiBatchClient::class)
+            ->arg('$apiKey', '%env(OPENAI_API_KEY)%')
+            ->tag('tacman.ai_batch.client')
+            ->deprecate('tacman/ai-batch-bundle', '0.2', 'Use "%service_id%" only for legacy code.');
+
         $services->set(\Tacman\AiBatch\Service\AnthropicBatchClient::class)
             ->arg('$apiKey', '%env(default::ANTHROPIC_API_KEY)%')
-            ->tag('tacman.ai_batch.client');
+            ->tag('tacman.ai_batch.client')
+            ->deprecate('tacman/ai-batch-bundle', '0.2', 'Use "%service_id%" only for legacy code.');
 
-        $services->alias(\Tacman\AiBatch\Contract\BatchCapablePlatformInterface::class, \Tacman\AiBatch\Service\OpenAiBatchClient::class);
+        $services->alias(\Tacman\AiBatch\Contract\BatchCapablePlatformInterface::class, \Tacman\AiBatch\Service\SymfonyBatchPlatformClient::class);
 
         $services->set(\Tacman\AiBatch\Service\AiBatchBuilder::class);
-        $services->set(\Tacman\AiBatch\Scheduler\PollBatchesTask::class);
+        $services->set(\Tacman\AiBatch\Service\AiTaskDispatcher::class);
     }
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
