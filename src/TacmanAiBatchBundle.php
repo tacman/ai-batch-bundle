@@ -45,6 +45,12 @@ class TacmanAiBatchBundle extends AbstractBundle
 
         $services->set(\Tacman\AiBatch\Service\AiBatchBuilder::class);
         $services->set(\Tacman\AiBatch\Service\AiTaskDispatcher::class);
+
+        $services->set(\Tacman\AiBatch\Command\BatchListCommand::class)->tag('console.command');
+        $services->set(\Tacman\AiBatch\Command\BatchStatusCommand::class)->tag('console.command');
+        $services->set(\Tacman\AiBatch\Command\BatchWaitCommand::class)->tag('console.command');
+        $services->set(\Tacman\AiBatch\Command\BatchCreateCommand::class)->tag('console.command');
+        $services->set(\Tacman\AiBatch\Command\BatchDownloadCommand::class)->tag('console.command');
     }
 
     public function prependExtension(ContainerConfigurator $container, ContainerBuilder $builder): void
