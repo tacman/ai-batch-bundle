@@ -40,6 +40,9 @@ class TacmanAiBatchBundle extends AbstractBundle
 
         $services->alias(\Tacman\AiBatch\Contract\BatchCapablePlatformInterface::class, \Tacman\AiBatch\Service\SymfonyBatchPlatformClient::class);
 
+        $services->set(\Tacman\AiBatch\Controller\BatchUiController::class)
+            ->tag('controller.service_arguments');
+
         $services->set(\Tacman\AiBatch\Service\AiBatchBuilder::class);
         $services->set(\Tacman\AiBatch\Service\AiTaskDispatcher::class);
     }

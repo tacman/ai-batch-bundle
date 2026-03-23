@@ -13,6 +13,8 @@
         }
     },
     "require": {
+        "doctrine/doctrine-bundle": "^2.13|^3.0",
+        "doctrine/orm": "^3.3",
         "php": "^8.4",
         "symfony/ai": "dev-feature/batch-processing as 1.0",
         "symfony/framework-bundle": "^7.4|^8.0",

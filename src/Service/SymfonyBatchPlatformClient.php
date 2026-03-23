@@ -118,7 +118,6 @@ final class SymfonyBatchPlatformClient implements BatchCapablePlatformInterface
     private function mapStatus(BatchStatus $status): string
     {
         return match ($status) {
-            BatchStatus::PENDING => 'validating',
             BatchStatus::PROCESSING => 'in_progress',
             BatchStatus::COMPLETED => 'completed',
             BatchStatus::FAILED => 'failed',
